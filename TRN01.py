@@ -311,12 +311,26 @@ def admin_page():
       </div>
       <div class="row">
         <button class="btn" type="submit">PDF（A4縦）をダウンロード</button>
-        <a class="btn outline" href="/admin/preview?start={s}&end={e}" target="_blank">プレビュー（HTML）</a>
+        <button class="btn outline" type="button" id="previewBtn">プレビュー（HTML）</button>
       </div>
       <p class="hint">出力項目：年月日 時分、所属、氏名（一覧）</p>
     </form>
+
+    <script>
+      const previewBtn = document.getElementById('previewBtn');
+      previewBtn.addEventListener('click', () => {{
+        const s = document.getElementById('start').value;
+        const e = document.getElementById('end').value;
+        if (!s || !e) {{
+          alert('開始日と終了日を指定してください。');
+          return;
+        }}
+        window.location.href = `/admin/preview?start=${{encodeURIComponent(s)}}&end=${{encodeURIComponent(e)}}`;
+      }});
+    </script>
     """
     return page_base(body)
+
 
 def fetch_rows_between(start_date: date, end_date: date):
     # JST の 00:00:00 〜 23:59:59 で抽出
