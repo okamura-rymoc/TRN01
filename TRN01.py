@@ -207,7 +207,7 @@ def watch():
 
       <div class="hr"></div>
 
-      <form id="infoForm" method="post" action="/submit" style="display:none" onsubmit="return onSubmitClose();">
+      <form id="infoForm" method="post" action="/submit" style="display:none">
         <label for="aff">所属</label>
         <select id="aff" name="affiliation" required>
           {''.join([f'<option value="{a}">{a}</option>' for a in AFFILIATIONS])}
@@ -217,11 +217,13 @@ def watch():
         <input id="nm" name="name" type="text" placeholder="氏名（フルネーム）を入力" required />
 
         <div class="right" style="margin-top:12px;">
-          <button class="btn" type="submit">記録して終了</button>
+          <button class="btn" type="submit">記録</button>
         </div>
       </form>
 
-      <p id="closeHint" class="hint" style="display:none;">ウィンドウを自動で閉じられない場合は、このタブを手動で閉じてください。</p>
+      <p id="closeHint" class="hint"style="display:none; margin-top:10px; color:#dc2626; font-weight:700;">ウィンドウを自動で閉じられない場合は、このタブを手動で閉じてください。
+</p>
+
     </div>
 
     <script>
@@ -230,7 +232,6 @@ def watch():
       const v = document.getElementById('vid');
       const sel = document.getElementById('audioSel');
       const form = document.getElementById('infoForm');
-      const closeHint = document.getElementById('closeHint');
       const SRC = "{video_url}";
 
       function setupAndPlay(fromStart=true) {{
@@ -260,13 +261,6 @@ def watch():
         window.scrollTo({{top: document.body.scrollHeight, behavior: 'smooth'}});
       }});
 
-      window.onSubmitClose = function() {{
-        setTimeout(() => {{
-          window.close();
-          setTimeout(() => {{ closeHint.style.display = 'block'; }}, 400);
-        }}, 100);
-        return true;
-      }}
     </script>
     """
     return page_base(body, title=APP_TITLE)
@@ -284,12 +278,33 @@ def submit(affiliation: str = Form(...), name: str = Form(...)):
 @app.get("/submitted", response_class=HTMLResponse)
 def submitted():
     body = """
-    <p>記録しました。ウィンドウが閉じない場合は、このタブを手動で閉じてください。</p>
-    <div class="grid">
-      <a class="btn outline" href="/">トップに戻る</a>
+    <div class="grid" style="text-align:center;">
+      <p style="font-size:1.8rem; font-weight:800; color:#dc2626; margin:12px 0;">
+        記録されました
+      </p>
+
+      <div style="margin-top:8px;">
+        <button class="btn" id="endBtn" type="button">終了</button>
+      </div>
+
+      <p id="closeHint" class="hint" style="display:none; margin-top:10px;">
+        ウィンドウを自動で閉じられない場合は、このタブを手動で閉じてください。
+      </p>
     </div>
+
+    <script>
+      const endBtn = document.getElementById('endBtn');
+      const closeHint = document.getElementById('closeHint');
+
+      endBtn.addEventListener('click', () => {
+        // ブラウザ仕様上、閉じられない場合があるのでヒントも出す
+        window.close();
+        setTimeout(() => { closeHint.style.display = 'block'; }, 400);
+      });
+    </script>
     """
     return page_base(body)
+
 
 # ====== 管理者用 ======
 
